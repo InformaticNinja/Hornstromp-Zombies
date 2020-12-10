@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Weapons/WeaponBase.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Weapons/White/WhiteWeapon.cs" type="Script" id=2]
+
+[node name="WhiteWeapon" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+
+[node name="Weapon" type="Area2D" parent="." index="0"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Weapon" index="0"]
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="Weapon" index="1"]
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="." index="2"]

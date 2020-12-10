@@ -1,0 +1,2 @@
+﻿50138
+C:\Users\InformaticNinja\Godot\Godot 3.2.3 Mono\Godot_v3.2.3-stable_mono_win64.exe

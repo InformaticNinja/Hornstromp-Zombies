@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Weapons/Fire/FireArm.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Weapons/Fire/Metra/Metra.cs" type="Script" id=2]
+
+[node name="Metra" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+timeCoolDown = 0.5
+timeCharger = 3.0
+chargerSize = 25
+totalBullets = 75
