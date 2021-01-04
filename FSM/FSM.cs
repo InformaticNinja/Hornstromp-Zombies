@@ -34,8 +34,6 @@ public class FSM : Node
 
         currentState = statesStack[0];
 
-        GD.Print(currentState);
-
         currentState.Enter();
 
         active = true;

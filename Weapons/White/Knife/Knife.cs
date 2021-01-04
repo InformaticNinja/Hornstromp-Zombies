@@ -26,6 +26,12 @@ public class Knife : WhiteWeapon
     public override void Attack(Vector2 direction)
     {
 
+        if(automatic){
+
+            AutomaticTarget(direction);
+
+        }
+
         Rotation = direction.Angle();
 
         Weapon.Visible = true;
@@ -52,7 +58,7 @@ public class Knife : WhiteWeapon
 
         if(body.IsInGroup("Enemies")){
 
-            ((Enemie)body).Damage();
+            ((Enemie)body).Damage(damage, Player);
 
         }
 

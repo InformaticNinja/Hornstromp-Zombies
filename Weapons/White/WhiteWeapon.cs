@@ -12,6 +12,7 @@ public class WhiteWeapon : Weapon
         
         Weapon = GetNode("Weapon") as Area2D;
         AttackAnimation = GetNode("AttackAnimation") as AnimationPlayer;
+        WeaponSprite = GetNode<AnimatedSprite>("Weapon/AnimatedSprite");
 
     }
 
@@ -26,6 +27,15 @@ public class WhiteWeapon : Weapon
     }
 
 
+    public virtual void _OnAreaEntered(Area2D area){
 
+        if(area.IsInGroup("EnemiesHitbox")){
+
+            (area.Owner as Enemie).Damage(damage, Player);
+
+        }
+
+
+    }
 
 }

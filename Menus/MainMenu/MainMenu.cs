@@ -13,9 +13,15 @@ public class MainMenu : CanvasLayer
         
     }
 
-    public void _OnPlayPressed(){
+    public void _OnPlaySoloPressed(){
 
         GetTree().ChangeScene("res://World/Maps/Map1/Map1.tscn");
+
+    }
+
+    public void _OnPlayMultiplayerPressed(){
+
+        
 
     }
 

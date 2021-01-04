@@ -8,13 +8,11 @@ public class FireArm : Weapon
     [Export] protected int totalBullets;
     protected int bulletsInCharger;
     protected int bulletsRemaining;
-    [Export] protected int scope;
     public Sprite Crosshair;
     public AnimatedSprite Explosion;
     public RayCast2D Shot;
-
     protected bool recharge = false;
-
+    
 
     public override void _Ready()
     {
@@ -24,13 +22,11 @@ public class FireArm : Weapon
         Crosshair = GetNode("Crosshair") as Sprite;
         Explosion = GetNode("Explosion") as AnimatedSprite;
         Shot = GetNode("Shot") as RayCast2D;
+        WeaponSprite = GetNode<AnimatedSprite>("AnimatedSprite");
         Crosshair.RegionRect = new Rect2(0, 0, scope, 8);
-
         bulletsInCharger = chargerSize;
-
         bulletsRemaining = totalBullets;
-
-        weaponInfo = bulletsInCharger.ToString() + "/" + totalBullets.ToString() ;
+        weaponInfo = bulletsInCharger.ToString() + "/" + bulletsRemaining.ToString() ;
         
     }
 
@@ -39,12 +35,12 @@ public class FireArm : Weapon
         base._PhysicsProcess(delta);
 
         if(Shot.IsColliding()){
-
+            
             ShotExplosion(ToLocal(Shot.GetCollisionPoint()));
 
-            if((Shot.GetCollider() as Node).IsInGroup("Enemies")){
+            if((Shot.GetCollider() as Node).IsInGroup("EnemiesHitbox")){
 
-                (Shot.GetCollider() as Enemie).Damage();
+                ((Shot.GetCollider() as Area2D).Owner as Enemie).Damage(damage, Player);
 
             }
 
@@ -58,27 +54,58 @@ public class FireArm : Weapon
 
     }
 
-    public override void JoystickPressed(bool pressed)
+    public override void JoystickPressed(bool pressed, bool auto = false)
     {
-        base.JoystickPressed(pressed);
+        base.JoystickPressed(pressed, auto);
 
         Crosshair.Visible = pressed;
+
+        if(auto){
+
+            Attack(attackDirection);
+
+        }
 
     }
 
     public override void Aim(Vector2 direction){
         
         if(direction != Vector2.Zero){
+
+            Crosshair.Rotation = direction.Angle();
             
-            if(!Crosshair.Visible){
-                
-                Crosshair.Visible = true;
+            WeaponSprite.Rotation = direction.Angle();
+
+            attackDirection = direction;
+        }
+
+        if(CoolDown.IsStopped()){
+
+            Attack(attackDirection);
+
+        }
+
+    }
+
+    public override void Attack(Vector2 direction){
+
+        if(checkCharger()){
+
+            if(automatic){
+
+                direction = AutomaticTarget(direction);
+
+                Crosshair.Rotation = direction.Angle();
 
             }
 
-            Crosshair.Rotation = direction.Angle();
+            Shot.CastTo = direction * scope;
 
-            attackDirection = direction;
+        SetPhysicsProcess(true);
+
+        CoolDown.Start(timeCoolDown);
+
+        base.Attack(direction);
 
         }
 
@@ -91,21 +118,28 @@ public class FireArm : Weapon
 
             bulletsInCharger -= 1;
 
-            weaponInfo = bulletsInCharger.ToString() + "/" + totalBullets.ToString() ;
+            weaponInfo = bulletsInCharger.ToString() + "/" + bulletsRemaining.ToString() ;
 
             Player.EmitSignal("WeaponInfo", weaponInfo);
 
             return true;
 
-        }else{
+        }else if(bulletsRemaining > 0){
 
-            recharge = true;
-
-            CoolDown.Start(timeCharger);
-
-            return false;
+            Reload();
 
         }
+
+        return false;
+
+    }
+
+
+    public override void Reload(){
+
+        recharge = true;
+
+        CoolDown.Start(timeCharger);
 
     }
 
@@ -133,13 +167,23 @@ public class FireArm : Weapon
 
         if(recharge){
 
-            bulletsInCharger = chargerSize;
+            var aux = bulletsRemaining >= chargerSize - bulletsInCharger ? chargerSize - bulletsInCharger  : bulletsRemaining;
 
-            totalBullets -= chargerSize;
+            bulletsInCharger += aux;
 
-            weaponInfo = bulletsInCharger.ToString() + "/" + totalBullets.ToString() ;
+            bulletsRemaining -= aux;
+
+            weaponInfo = bulletsInCharger.ToString() + "/" + bulletsRemaining.ToString() ;
 
             recharge = false;
+
+            Player.EmitSignal("WeaponInfo", weaponInfo);
+
+        }
+
+        if(isAttacking){
+            
+            Attack(attackDirection);
 
         }
     }

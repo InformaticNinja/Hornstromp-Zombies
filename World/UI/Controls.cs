@@ -4,8 +4,13 @@ using System;
 public class Controls : Node2D
 {
     
+
+    Player Player;
+    Godot.Collections.Array<TextureButton> weaponsButtons;
+    Global Global;
+
     [Signal] public delegate void JoystickInput(String joystick, Vector2 direction);
-    [Signal] public delegate void JoystickPressed(String joystick, bool pressed);
+    [Signal] public delegate void Reload();
     private Sprite joystickMove;
     private Sprite joystickShoot;
 
@@ -16,9 +21,29 @@ public class Controls : Node2D
     {
 
         joystickMove = GetNode("JoystickMove") as Sprite;
+
         joystickShoot = GetNode("JoystickShoot") as Sprite;
+
+        ConnectWeaponsButtons();
+
+        //StartButtons();
+
+        Global = (Global)GetNode("/root/Global");;
+
         
     }
+
+    public void Start(Player player){
+
+        this.Player = player;
+
+        _OnWeaponButtonPressed(weaponsButtons[0], 0);
+
+        StartButtons();
+
+    }
+
+    
 
     public override void _Input(InputEvent @event)
     {
@@ -30,17 +55,19 @@ public class Controls : Node2D
             InputEventScreenTouch eventTouch = (InputEventScreenTouch)@event;
 
             joystickPressed(eventTouch, eventTouch.IsPressed());
-            //joystickPressed(actualJoystick, eventTouch, eventTouch.IsPressed());
 
         }else if(@event is InputEventScreenDrag){
 
             InputEventScreenDrag eventDrag = (InputEventScreenDrag)@event;
 
-            joystickDrag(eventDrag);
+            if(eventDrag.Index == moveIndex || eventDrag.Index == shootIndex){
+
+                joystickDrag(eventDrag);
+
+            }
 
         }
 
-        
     }
 
     public void joystickPressed( InputEventScreenTouch eventTouch, bool pressed){
@@ -50,8 +77,8 @@ public class Controls : Node2D
         String joystickString = "";
 
         if(pressed){
-
-            if(eventTouch.Position.x < 640){
+            
+            if(joystickMove.GetRect().HasPoint(joystickMove.ToLocal(eventTouch.Position))){
 
                 actualJoystick = joystickMove;
 
@@ -61,7 +88,7 @@ public class Controls : Node2D
 
             }
 
-            else{
+            else if(joystickShoot.GetRect().HasPoint(joystickShoot.ToLocal(eventTouch.Position))){
 
                 actualJoystick = joystickShoot;
 
@@ -70,14 +97,6 @@ public class Controls : Node2D
                 joystickString = "shoot";
 
             }
-
-            actualJoystick.Position = ToLocal(eventTouch.Position);
-
-            Sprite direction = actualJoystick.GetNode("Direction") as Sprite;
-
-            direction.Position = Vector2.Zero;
-            
-            
 
         }else{
 
@@ -99,18 +118,13 @@ public class Controls : Node2D
 
             }
 
-        }
+            Sprite direction = actualJoystick.GetNode("Direction") as Sprite;
 
-        if(eventTouch.Position.y > 192 || !pressed){
-
-            EmitSignal("JoystickPressed", joystickString, pressed);
-
-            actualJoystick.Visible = pressed;
+            direction.Position = Vector2.Zero;
 
         }
 
-        
-
+        Player.JoystickPressed(joystickString, pressed, false);
     }
 
 
@@ -139,7 +153,7 @@ public class Controls : Node2D
         direction = actualJoystick.GetNode("Direction") as Sprite;
 
         Vector2 directionPosition = actualJoystick.ToLocal(eventDrag.Position);
-
+        
         if(directionPosition.Length() > 125){
 
             directionPosition = directionPosition.Normalized() * 125;
@@ -148,8 +162,70 @@ public class Controls : Node2D
 
         direction.Position = directionPosition;
 
-        EmitSignal("JoystickInput", joystickString, directionPosition.Normalized());
+        Player.JoystickInput(joystickString, directionPosition.Normalized());
         
+
+    }
+
+    public void StartButtons(){
+
+        for(int i= 0; i < weaponsButtons.Count; i++){
+
+            Global.ButtonDisabled(weaponsButtons[i], Player.weapons[i] == null);
+
+        }
+
+    }
+
+    public void ConnectWeaponsButtons(){
+
+        weaponsButtons = new Godot.Collections.Array<TextureButton>(GetNode("Weapons").GetChildren());
+
+        int aux = 0;
+
+        while(aux < weaponsButtons.Count){
+
+            Godot.Collections.Array connectData = new Godot.Collections.Array();
+
+            connectData.Add(weaponsButtons[aux]);
+
+            connectData.Add(aux);
+
+            weaponsButtons[aux].Connect("pressed", this, "_OnWeaponButtonPressed", connectData);
+
+            aux += 1;
+
+        }
+
+    }
+
+    public void _OnAutoShootPressed(bool pressed){
+
+        Player.JoystickPressed("shoot", pressed, pressed);
+
+    }
+
+    public void _OnReloadPressed(){
+
+        Player.currentWeapon.Reload();
+
+    }
+
+    public void _OnWeaponButtonPressed(TextureButton buttonPressed, int buttonIndex){
+
+        Player.ChangeWeapon(buttonIndex);
+
+        int aux = 0;
+
+        while(aux < weaponsButtons.Count){
+
+            Global.ButtonDisabled((TextureButton)weaponsButtons[aux], Player.weapons[aux] == null );
+
+            aux += 1;
+   
+        }
+
+        Global.ButtonDisabled(buttonPressed, true);
 
     }
 

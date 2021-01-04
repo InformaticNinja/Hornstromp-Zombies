@@ -137,15 +137,19 @@ animations = [ {
 script = ExtResource( 2 )
 scope = 300
 
-[node name="Shot" type="RayCast2D" parent="." index="1"]
-enabled = true
+[node name="AnimatedSprite" type="AnimatedSprite" parent="." index="1"]
 
-[node name="Explosion" type="AnimatedSprite" parent="." index="2"]
+[node name="Shot" type="RayCast2D" parent="." index="2"]
+enabled = true
+collision_mask = 9
+collide_with_areas = true
+
+[node name="Explosion" type="AnimatedSprite" parent="." index="3"]
 visible = false
 scale = Vector2( 0.25, 0.25 )
 frames = SubResource( 25 )
 
-[node name="Crosshair" type="Sprite" parent="." index="3"]
+[node name="Crosshair" type="Sprite" parent="." index="4"]
 visible = false
 modulate = Color( 1, 1, 1, 0.439216 )
 position = Vector2( -4, 0 )
@@ -153,4 +157,7 @@ texture = ExtResource( 3 )
 centered = false
 region_enabled = true
 region_rect = Rect2( 319, 99, 0, 0 )
+
+[node name="AutomaticArea" parent="." index="5"]
+collision_mask = 8
 [connection signal="animation_finished" from="Explosion" to="." method="_OnExplosionAnimationFinished"]
