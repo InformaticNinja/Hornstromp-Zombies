@@ -22,6 +22,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://Global/Global.tscn"
+Server="*res://Global/Server.cs"
 
 [display]
 
