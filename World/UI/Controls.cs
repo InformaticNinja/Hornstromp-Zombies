@@ -13,9 +13,17 @@ public class Controls : Node2D
     [Signal] public delegate void Reload();
     private Sprite joystickMove;
     private Sprite joystickShoot;
+    private Tween TweenNode;
+    private Rect2 moveRect = new Rect2(new Vector2(0, 192), new Vector2(640, 528));
+    private Rect2 shootRect = new Rect2(new Vector2(640, 192), new Vector2(640, 528));
+    private Vector2 moveInitialPos = new Vector2(200, 544);
+    private Vector2 shootInitialPos = new Vector2(1064, 440);
 
     private int moveIndex = -1;
     private int shootIndex = -1;
+
+    public Rect2 MOVERECT{get => moveRect; set => moveRect = value;}
+    public Rect2 SHOOTRECT{get => shootRect; set => shootRect = value;}
 
     public override void _Ready()
     {
@@ -24,11 +32,13 @@ public class Controls : Node2D
 
         joystickShoot = GetNode("JoystickShoot") as Sprite;
 
+        TweenNode = GetNode("Tween") as Tween;
+
         ConnectWeaponsButtons();
 
         //StartButtons();
 
-        Global = (Global)GetNode("/root/Global");;
+        Global = (Global)GetNode("/root/Global");
 
         
     }
@@ -72,13 +82,15 @@ public class Controls : Node2D
 
     public void joystickPressed( InputEventScreenTouch eventTouch, bool pressed){
 
-        Sprite actualJoystick;
+        Sprite actualJoystick = null;
 
         String joystickString = "";
 
         if(pressed){
-            
-            if(joystickMove.GetRect().HasPoint(joystickMove.ToLocal(eventTouch.Position))){
+
+            if(moveRect.HasPoint(eventTouch.Position)){
+
+                joystickMove.Position = eventTouch.Position;
 
                 actualJoystick = joystickMove;
 
@@ -88,7 +100,9 @@ public class Controls : Node2D
 
             }
 
-            else if(joystickShoot.GetRect().HasPoint(joystickShoot.ToLocal(eventTouch.Position))){
+            else if(shootRect.HasPoint(eventTouch.Position)){
+
+                joystickShoot.Position = eventTouch.Position;
 
                 actualJoystick = joystickShoot;
 
@@ -102,13 +116,19 @@ public class Controls : Node2D
 
             if(eventTouch.Index == moveIndex){
 
+                joystickMove.Position = moveInitialPos;
+
                 moveIndex = -1;
 
                 actualJoystick = joystickMove;
 
                 joystickString = "move";
 
-            }else{
+            }else if(eventTouch.Index == shootIndex){
+
+                Vector2 directionPosition = joystickShoot.ToLocal(eventTouch.Position);
+
+                joystickShoot.Position = shootInitialPos;
 
                 shootIndex = -1;
 
@@ -116,15 +136,31 @@ public class Controls : Node2D
 
                 joystickString = "shoot";
 
+                if(directionPosition.Length() <= 50){
+
+                    Player.JoystickPressed("shoot", pressed, true);
+
+                }
+
             }
 
-            Sprite direction = actualJoystick.GetNode("Direction") as Sprite;
+            if(actualJoystick != null){
 
-            direction.Position = Vector2.Zero;
+                Sprite direction = actualJoystick.GetNode("Direction") as Sprite;
+
+                direction.Position = Vector2.Zero;
+
+            }
 
         }
 
-        Player.JoystickPressed(joystickString, pressed, false);
+        if(joystickString != ""){
+
+            Player.JoystickPressed(joystickString, pressed, false);
+
+        }
+
+        
     }
 
 
@@ -160,10 +196,18 @@ public class Controls : Node2D
 
         }
 
-        direction.Position = directionPosition;
+        if(directionPosition.Length() > 50){
 
-        Player.JoystickInput(joystickString, directionPosition.Normalized());
-        
+            direction.Position = directionPosition;
+
+            Player.JoystickInput(joystickString, directionPosition.Normalized());
+
+        }else{
+
+            direction.Position = Vector2.Zero;
+
+        }
+
 
     }
 
@@ -199,11 +243,20 @@ public class Controls : Node2D
 
     }
 
-    public void _OnAutoShootPressed(bool pressed){
+    public void StartAttackCooldown(float coolTime){
 
-        Player.JoystickPressed("shoot", pressed, pressed);
+        if(TweenNode.IsActive()){
+
+            TweenNode.StopAll();
+
+        }
+
+        TweenNode.InterpolateProperty(joystickShoot, "modulate", new Color(0, 0, 0, 1), joystickShoot.Modulate, coolTime, Tween.TransitionType.Elastic);
+
+        TweenNode.Start();
 
     }
+
 
     public void _OnReloadPressed(){
 

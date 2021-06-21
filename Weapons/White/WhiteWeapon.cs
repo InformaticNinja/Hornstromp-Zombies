@@ -12,7 +12,7 @@ public class WhiteWeapon : Weapon
         
         Weapon = GetNode("Weapon") as Area2D;
         AttackAnimation = GetNode("AttackAnimation") as AnimationPlayer;
-        WeaponSprite = GetNode<AnimatedSprite>("Weapon/AnimatedSprite");
+        WeaponSprite = GetNode<Sprite>("Weapon/Sprite");
 
     }
 

@@ -41,6 +41,12 @@ public class GameData : Node2D
 
     }
 
+    public void SetRound(String roundInfo){
+
+        RoundInfo.Text = roundInfo;
+
+    }
+
     public void SetZombies(String message){
 
         ZombiesInfo.Text = message;

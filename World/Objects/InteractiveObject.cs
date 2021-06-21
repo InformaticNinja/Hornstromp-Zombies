@@ -33,6 +33,13 @@ public class InteractiveObject : Area2D
 
     public virtual void _OnInputEvent(Node viewport, InputEvent e, int shapeIdx){  }
 
+
+    public virtual void _OnBodyEntered(Node body){
+
+        
+
+    }
+
     public virtual void _OnBodyExited(Node body){}
 
 }

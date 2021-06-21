@@ -59,7 +59,7 @@ public class Teleporter : InteractiveObject
     }
 
 
-    public override void _OnInputEvent(Node viewport, InputEvent e, int shapeIdx){
+    /*public override void _OnInputEvent(Node viewport, InputEvent e, int shapeIdx){
 
         bool isPressed = IsObjectPressed(e);
         
@@ -85,7 +85,7 @@ public class Teleporter : InteractiveObject
 
         }
 
-    }
+    }*/
 
     public void _OnArrowPressed(TextureButton arrowButton, Vector2 teleportPosition){
 
@@ -97,10 +97,21 @@ public class Teleporter : InteractiveObject
 
     }
 
+    public override void _OnBodyEntered(Node body){
+        
+        if(body.IsInGroup("Players")){
+
+            PlayerTarget = body as Player;
+
+            ShowArrows(true);
+
+        }
+
+    }
+
     
 
-    public override void _OnBodyExited(Node body)
-    {
+    public override void _OnBodyExited(Node body){
         
         if(body == PlayerTarget){
 

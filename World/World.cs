@@ -3,10 +3,10 @@ using System;
 
 public class World : Node2D
 {
-    Player Player;
-    Controls Controls;
-    GameData GameData;
-    MobGenerator MobGenerator;
+    protected Player Player;
+    protected Controls Controls;
+    protected GameData GameData;
+    protected MobGenerator MobGenerator;
     public static RandomNumberGenerator rng = new RandomNumberGenerator();
 
     public override void _Ready()
@@ -25,17 +25,17 @@ public class World : Node2D
 
     public void InitVars(){
 
-        Player = GetNode("Player") as Player;
+        Player = GetNode("YSort/Player") as Player;
 
         Controls = GetNode("UI/Controls") as Controls;
 
         GameData = GetNode("UI/GameData") as GameData;
 
-        MobGenerator = GetNode("MobGenerator") as MobGenerator;
+        MobGenerator = GetNode("YSort/MobGenerator") as MobGenerator;
 
     }
 
-    public void ObjectsStart(){
+    public virtual void ObjectsStart(){
 
         Player.start(GetNode("Ammo") as Node2D);
 
@@ -57,9 +57,15 @@ public class World : Node2D
 
         Player.Connect("ChangeWeapons", Controls, "StartButtons");
 
+        Player.Connect("Cooldown", Controls, "StartAttackCooldown");
+
         MobGenerator.Connect("ChangeRound", GameData, "SetRound");
 
         MobGenerator.Connect("ChangeZombies", GameData, "SetZombies");
+
+        MobGenerator.Connect("NewEnemie", GetNode("UI/PanelContainer/MarginContainer/MiniMap"), "NewMarker");
+
+        MobGenerator.Connect("RemoveEnemie", GetNode("UI/PanelContainer/MarginContainer/MiniMap"), "RemoveMarker");
 
     }
 

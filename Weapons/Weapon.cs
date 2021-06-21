@@ -9,13 +9,14 @@ public class Weapon : Node2D
     [Export] protected int scope;
     [Export] protected WeaponClass weaponType;
     protected Timer CoolDown;
-    protected AnimatedSprite WeaponSprite;
+    protected Sprite WeaponSprite;
     protected Vector2 attackDirection;
     protected bool isAttacking = false;
     public String weaponInfo;
     protected Area2D AutomaticArea;
     protected Player Player;
     protected bool automatic = false;
+
 
     public enum WeaponClass{white, primary, secundary}
 
@@ -61,6 +62,12 @@ public class Weapon : Node2D
             attackDirection = Vector2.Zero;
 
         }
+
+        if(auto && CoolDown.IsStopped()){
+
+            Attack(attackDirection);
+
+        }
     }
 
     public virtual void Aim(Vector2 direction){}
@@ -69,11 +76,11 @@ public class Weapon : Node2D
 
     public virtual Vector2 AutomaticTarget(Vector2 direction){
 
-        Godot.Collections.Array enemiesOptions = AutomaticArea.GetOverlappingBodies();
+        Godot.Collections.Array<Node2D> enemiesOptions = new Godot.Collections.Array<Node2D>(AutomaticArea.GetOverlappingAreas());
 
         if(enemiesOptions.Count > 0){
 
-            Enemie target = enemiesOptions[World.rng.RandiRange(0, enemiesOptions.Count -1)] as Enemie;
+            Enemie target = (enemiesOptions[World.rng.RandiRange(0, enemiesOptions.Count -1)].Owner) as Enemie;
 
             direction = (target.GlobalPosition - Player.GlobalPosition).Normalized(); 
 
@@ -96,6 +103,40 @@ public class Weapon : Node2D
         }
 
         return direction;
+
+    }
+
+    public virtual void SetWeaponDirection(Vector2 direction){
+        
+        bool flip = true ;
+
+        if(direction.Angle() <= Mathf.Pi / 2 && direction.Angle() >= Mathf.Pi / -2){
+
+            flip = false;
+
+        }
+
+        WeaponSprite.Rotation = direction.Angle();
+
+        if( WeaponSprite.FlipV != flip){
+
+            WeaponSprite.FlipV = !WeaponSprite.FlipV;
+
+            WeaponSprite.Rotation = direction.Angle() - Mathf.Pi;
+
+            WeaponSprite.Offset = new Vector2(WeaponSprite.Offset.x, WeaponSprite.Offset.y * -1);
+
+        }
+            
+        attackDirection = direction;
+
+    }
+
+    public void StartCooldown(float time){
+
+        CoolDown.Start(time);
+
+        Player.EmitSignal("Cooldown", time);
 
     }
 

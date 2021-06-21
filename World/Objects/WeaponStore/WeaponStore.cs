@@ -51,42 +51,12 @@ public class WeaponStore : InteractiveObject
 
     public void ShowBuyInfo(bool active){
 
-        GetNode<ColorRect>("WeaponInfo").Visible = active;
+        GetNode<Node2D>("WeaponInfo").Visible = active;
 
         Global.ButtonDisabled(BuyButton, !(active && PlayerTarget.COINS >= price));
 
 
     }
-    
-    public override void _OnInputEvent(Node viewport, InputEvent e, int shapeIdx){  
-
-        bool isPressed = IsObjectPressed(e);
-
-        if(isPressed){
-
-            foreach(Node2D i in GetOverlappingBodies()){
-
-                if(i.IsInGroup("Players")){
-                    
-                    PlayerTarget = i as Player;
-
-                    break;
-
-                }
-
-            }
-
-            if(PlayerTarget != null){
-
-                ShowBuyInfo(true);
-
-            }
-
-        }
-
-    }
-
-    
 
     public void _OnBuyButtonPressed(){
 
@@ -95,6 +65,18 @@ public class WeaponStore : InteractiveObject
         ShowBuyInfo(false);
 
         PlayerTarget = null;
+
+    }
+
+    public override void _OnBodyEntered(Node body){
+
+        if(body.IsInGroup("Players")){
+
+            PlayerTarget = body as Player;
+
+            ShowBuyInfo(true);
+
+        }
 
     }
 

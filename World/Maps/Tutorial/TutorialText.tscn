@@ -1,0 +1,45 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Pruebas/AppIcon.png" type="Texture" id=1]
+[ext_resource path="res://Pruebas/DiagleBox.png" type="Texture" id=2]
+[ext_resource path="res://World/Maps/Tutorial/TutorialText.cs" type="Script" id=3]
+[ext_resource path="res://Fonts/BlackHanSans-Regular.ttf" type="DynamicFontData" id=4]
+
+[sub_resource type="DynamicFont" id=1]
+size = 24
+font_data = ExtResource( 4 )
+
+[node name="TutorialText" type="TextureRect"]
+margin_left = 8.0
+margin_top = 200.0
+margin_right = 440.0
+margin_bottom = 632.0
+rect_scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 1 )
+flip_h = true
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TutorialContainer" type="TextureRect" parent="."]
+margin_left = 336.0
+margin_top = 176.0
+margin_right = 956.0
+margin_bottom = 376.0
+texture = ExtResource( 2 )
+flip_h = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TutorialLabel" type="RichTextLabel" parent="TutorialContainer"]
+margin_left = 32.0
+margin_top = 2.0
+margin_right = 620.0
+margin_bottom = 256.0
+custom_fonts/normal_font = SubResource( 1 )
+custom_colors/default_color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

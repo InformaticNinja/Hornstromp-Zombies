@@ -5,6 +5,7 @@ public class Enemie : KinematicBody2D
 {
     EnemieFSM FSM;
     AnimationPlayer StatesAnimation;
+    AnimatedSprite AnimatedSprite;
     Navigation2D Navigation;
     Player PlayerTarget;
     Timer MovementTimer;
@@ -12,11 +13,12 @@ public class Enemie : KinematicBody2D
 
     private float hp;
     public Vector2 velocity = new Vector2();
-
+    private const String miniMap = "enemie";
     public float damage = 10;
     public float speed = 50;
     public int coins;
     float distanceToPath = 0;
+    bool isAlive = true;
 
 
     [Signal] public delegate void EnemieDeath();
@@ -29,11 +31,13 @@ public class Enemie : KinematicBody2D
 
         MovementTimer = GetNode<Timer>("MovementTimer");
 
+        AnimatedSprite = GetNode<AnimatedSprite>("AnimatedSprite");
+
         FSM = GetNode<EnemieFSM>("EnemieFSM");
 
         SetTarget();
 
-        SetPath();
+        //SetPath();
 
     }
 
@@ -79,7 +83,7 @@ public class Enemie : KinematicBody2D
 
         hp -= damage;
 
-        if(hp <= 0){
+        if(hp <= 0 && isAlive){
 
             Death(playerAttacker);
 
@@ -89,6 +93,8 @@ public class Enemie : KinematicBody2D
 
 
     protected virtual void Death(Player playerAttacker){
+
+        isAlive = false;
 
         Connect("DropCoins", playerAttacker, "GetCoins");
 
@@ -135,11 +141,11 @@ public class Enemie : KinematicBody2D
 
             }
 
-            MovementTimer.Start((float)(.1 * GetTree().GetNodesInGroup("Enemies").Count));
-
         }
 
     }
+
+    
 
     public void SetDirection(){
 
@@ -147,6 +153,8 @@ public class Enemie : KinematicBody2D
             distanceToPath = (navigationPath[0] - Position).Length();
         
             velocity = (navigationPath[0] - Position).Normalized();
+
+            AnimatedSprite.FlipH = velocity.x < 0;
 
             navigationPath.RemoveAt(0);
 
@@ -160,7 +168,7 @@ public class Enemie : KinematicBody2D
 
             if(navigationPath.Count < 5 || navigationPath[navigationPath.Count -1].DistanceTo(PlayerTarget.Position) > 500){
 
-                SetPath();
+                //SetPath();
 
             }
 

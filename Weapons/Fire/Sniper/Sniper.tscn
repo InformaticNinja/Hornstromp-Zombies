@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Weapons/Fire/FireArm.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Weapons/Fire/Sniper/Sniper.cs" type="Script" id=2]
+[ext_resource path="res://Weapons/Fire/Sniper/Sniper.png" type="Texture" id=3]
+
+[node name="Sniper" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+damage = 10.0
+timeCoolDown = 3.0
+scope = 1000
+weaponType = 2
+timeCharger = 5.0
+chargerSize = 1
+totalBullets = 10
+ammoPrice = 100
+
+[node name="Sprite" parent="." index="2"]
+texture = ExtResource( 3 )
+offset = Vector2( 32, 8 )

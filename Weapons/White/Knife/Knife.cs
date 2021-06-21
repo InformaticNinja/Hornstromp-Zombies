@@ -28,7 +28,7 @@ public class Knife : WhiteWeapon
 
         if(automatic){
 
-            AutomaticTarget(direction);
+            direction = AutomaticTarget(direction);
 
         }
 
@@ -40,7 +40,7 @@ public class Knife : WhiteWeapon
 
         Weapon.Monitoring = true;
 
-        CoolDown.Start(timeCoolDown);
+        StartCooldown(timeCoolDown);
 
         base.Attack(direction);
     }

@@ -4,25 +4,28 @@ using System;
 public class FireArm : Weapon
 {
     [Export] protected float timeCharger;
-    [Export]  protected int chargerSize;
+    [Export]  public int chargerSize;
     [Export] protected int totalBullets;
+    
+    [Export] public int ammoPrice;
     protected int bulletsInCharger;
     protected int bulletsRemaining;
     public Sprite Crosshair;
     public AnimatedSprite Explosion;
     public RayCast2D Shot;
     protected bool recharge = false;
+
+    public int BuyAmmo{get => bulletsRemaining; set {bulletsRemaining = value; Mathf.Clamp(bulletsRemaining, 0, totalBullets);}}
     
 
     public override void _Ready()
     {
-
         base._Ready();
 
         Crosshair = GetNode("Crosshair") as Sprite;
         Explosion = GetNode("Explosion") as AnimatedSprite;
         Shot = GetNode("Shot") as RayCast2D;
-        WeaponSprite = GetNode<AnimatedSprite>("AnimatedSprite");
+        WeaponSprite = GetNode<Sprite>("Sprite");
         Crosshair.RegionRect = new Rect2(0, 0, scope, 8);
         bulletsInCharger = chargerSize;
         bulletsRemaining = totalBullets;
@@ -34,9 +37,17 @@ public class FireArm : Weapon
     {
         base._PhysicsProcess(delta);
 
+        IsShooting();
+
+        SetPhysicsProcess(false);
+
+    }
+
+    public virtual void IsShooting(){
+
         if(Shot.IsColliding()){
             
-            ShotExplosion(ToLocal(Shot.GetCollisionPoint()));
+            ShotExplosion(Explosion, ToLocal(Shot.GetCollisionPoint()));
 
             if((Shot.GetCollider() as Node).IsInGroup("EnemiesHitbox")){
 
@@ -46,11 +57,9 @@ public class FireArm : Weapon
 
         }else{
 
-            ShotExplosion(Shot.CastTo);
+            ShotExplosion(Explosion, Shot.CastTo);
 
         }
-
-        SetPhysicsProcess(false);
 
     }
 
@@ -60,7 +69,7 @@ public class FireArm : Weapon
 
         Crosshair.Visible = pressed;
 
-        if(auto){
+        if(auto && CoolDown.IsStopped()){
 
             Attack(attackDirection);
 
@@ -72,11 +81,7 @@ public class FireArm : Weapon
         
         if(direction != Vector2.Zero){
 
-            Crosshair.Rotation = direction.Angle();
-            
-            WeaponSprite.Rotation = direction.Angle();
-
-            attackDirection = direction;
+            SetWeaponDirection(direction);
         }
 
         if(CoolDown.IsStopped()){
@@ -103,7 +108,7 @@ public class FireArm : Weapon
 
         SetPhysicsProcess(true);
 
-        CoolDown.Start(timeCoolDown);
+        StartCooldown(timeCoolDown);
 
         base.Attack(direction);
 
@@ -124,7 +129,7 @@ public class FireArm : Weapon
 
             return true;
 
-        }else if(bulletsRemaining > 0){
+        }else if(bulletsRemaining > 0 && !recharge){
 
             Reload();
 
@@ -139,17 +144,24 @@ public class FireArm : Weapon
 
         recharge = true;
 
-        CoolDown.Start(timeCharger);
+        StartCooldown(timeCharger);
+    }
+
+    public void ShotExplosion(AnimatedSprite explosion, Vector2 position){
+
+        explosion.Position = position;
+
+        explosion.Visible = true;
+
+        explosion.Play();
 
     }
 
-    public void ShotExplosion(Vector2 position){
+    public override void SetWeaponDirection(Vector2 direction){
 
-        Explosion.Position = position;
+        Crosshair.Rotation = direction.Angle();
 
-        Explosion.Visible = true;
-
-        Explosion.Play();
+        base.SetWeaponDirection(direction);
 
     }
 

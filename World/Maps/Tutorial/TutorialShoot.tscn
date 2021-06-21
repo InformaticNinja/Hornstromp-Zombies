@@ -1,0 +1,79 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Pruebas/Click2.png" type="Texture" id=1]
+[ext_resource path="res://Pruebas/Click1.png" type="Texture" id=2]
+[ext_resource path="res://Pruebas/Joystick Base.png" type="Texture" id=3]
+
+[sub_resource type="Animation" id=1]
+resource_name = "TutorialMove"
+length = 9.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Click:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ ExtResource( 2 ), ExtResource( 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Click:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 1, 2, 4, 5, 6, 8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 56, 16 ), Vector2( 56, 16 ), Vector2( 116, 20 ), Vector2( -10, 20 ), Vector2( 56, 16 ), Vector2( 56, -46 ), Vector2( 56, 80 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Joystick/Joystick2:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 1, 2, 4, 5, 6, 8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ), Vector2( 0, 0 ), Vector2( 60, 4 ), Vector2( -66, 4 ), Vector2( 0, 0 ), Vector2( 0, -62 ), Vector2( 0, 63.9999 ) ]
+}
+
+[sub_resource type="CircleShape2D" id=2]
+radius = 112.0
+
+[node name="TutorialShoot" type="Node2D"]
+position = Vector2( 1064, 440 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Joystick" type="Sprite" parent="."]
+modulate = Color( 1, 0, 0, 0.384314 )
+texture = ExtResource( 3 )
+
+[node name="Joystick2" type="Sprite" parent="Joystick"]
+scale = Vector2( 0.4, 0.4 )
+texture = ExtResource( 3 )
+
+[node name="Click" type="Sprite" parent="."]
+position = Vector2( 56, 16 )
+texture = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "TutorialMove"
+anims/TutorialMove = SubResource( 1 )
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource( 2 )
